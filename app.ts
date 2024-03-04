@@ -7,7 +7,7 @@ import cors from "cors";
 export const app = express();
 app.use(bodyParser.text());
 app.use(bodyParser.json());
-console.log("you");
+console.log("sdsd");
 app.use(
     cors({
       origin: "*",
