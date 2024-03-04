@@ -18,12 +18,10 @@ router.get("/votes", (req,res)=>{
 router.post("/vote", (req, res) => {
     let vote: VotePostResponse = req.body;
     let sql =
-          "INSERT INTO `vote`(`pt_id1`, `pt_id2`, `vote_point1`, `vote_point2`, `vote_timestamp`,`u_id`) VALUES (?,?,?,?,?,?)";
+          "INSERT INTO `vote`(`pt_id`,`vote_point`,`vote_timestamp`,`u_id`) VALUES (?,?,?,?)";
     sql = mysql.format(sql, [
-        vote.pt_id1,
-        vote.pt_id2,
-        vote.vote_point1,
-        vote.vote_point2,
+        vote.pt_id,
+        vote.vote_point,
         vote.vote_timestamp,
         vote.u_id
 
