@@ -7,11 +7,7 @@ import cors from "cors";
 export const app = express();
 app.use(bodyParser.text());
 app.use(bodyParser.json());
-<<<<<<< Updated upstream
-console.log("tsedds");
-=======
-console.log("nutty");
->>>>>>> Stashed changes
+console.log("you");
 app.use(
     cors({
       origin: "*",
