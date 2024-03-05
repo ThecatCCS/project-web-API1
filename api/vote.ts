@@ -14,7 +14,6 @@ router.get("/votes", (req,res)=>{
     })
 }
 );
-
 router.post("/vote", (req, res) => {
     let vote: VotePostResponse = req.body;
     let sql =
@@ -24,7 +23,6 @@ router.post("/vote", (req, res) => {
         vote.vote_point,
         vote.vote_timestamp,
         vote.u_id
-
         ]);
     conn.query(sql, (err, result) => {
       if (err) throw err;
