@@ -18,12 +18,10 @@ router.put("/:id", async (req, res) => {
   const sql = "UPDATE pictrue SET pictrue_p = ? WHERE pictrue_id = ?";
 
   conn.query(sql, [newScore, id], (err, result) => {
-    if (err) {
-      console.error('Error executing SQL query:', err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      // ส่งข้อมูลที่ได้กลับเป็น JSON response
-      res.json(result);
-    }
-  });
+    conn.query(sql, (err, result) => {
+      if (err) throw err;
+      res
+        .status(201)
+        .json({ affected_row: result.affectedRows, last_idx: result.insertId });
+    });  });
 });
