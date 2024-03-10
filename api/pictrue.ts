@@ -1,7 +1,11 @@
 import express from "express";
 import { conn, queryAsync } from "../dbconnect";
-
+import { PictruepostResponse } from "../mode/PictruepostResponse";
+import mysql from "mysql";
 export const router = express.Router();
+
+
+
 
 router.get("/all", (req, res) => {
   const sql = "SELECT * FROM pictrue ORDER BY RAND() LIMIT 2";
@@ -55,8 +59,8 @@ router.get("/statistics/:pictrue_id", async (req, res) => {
       const statistics = results.map((row: any) => ({
         date: row.date,
         count: row.count,
-        total_score: row.total_score // แก้ชื่อ key เป็น total_score
-      }));
+        total_score: row.total_score 
+      }));  
 
       res.status(200).json(statistics);
     });
@@ -66,3 +70,33 @@ router.get("/statistics/:pictrue_id", async (req, res) => {
   }
 });
 
+
+
+
+
+router.post("/add", (req, res) => {
+  let pictrue: PictruepostResponse = req.body;
+  let sql =
+        "INSERT INTO `pictrue`(`pictrue_url`,`pictrue_p`,`u_id`) VALUES (?,?,?)";
+  sql = mysql.format(sql, [
+    pictrue.pictrue_url,
+    pictrue.pictrue_p,
+    pictrue.u_id
+      ]);
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
+    res
+      .status(201)
+      .json({ affected_row: result.affectedRows, last_idx: result.insertId });
+  });
+});
+
+router.delete("/delete/:id", (req, res) => {
+  let id = +req.params.id;
+  conn.query("delete from pictrue where pictrue_id = ?", [id], (err, result) => {
+     if (err) throw err;
+     res
+       .status(200)
+       .json({ affected_row: result.affectedRows });
+  });
+});
