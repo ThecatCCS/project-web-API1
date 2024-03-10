@@ -3,9 +3,7 @@ import { conn, queryAsync } from "../dbconnect";
 import { UserPostResponse } from "../mode/UserpostResponse";
 import mysql from "mysql";
 
-
 export const router = express.Router();
-
 
 router.get("/users", (req,res)=>{
         const sql = "select * from users";
@@ -25,7 +23,6 @@ router.post("/user", (req, res) => {
         user.user_gender,
         user.user_name,
         user.user_age,
-
         ]);
     conn.query(sql, (err, result) => {
       if (err) throw err;
