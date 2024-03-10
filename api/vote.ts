@@ -7,7 +7,7 @@ import { VotePostResponse } from "../mode/VotepostResponse";
 export const router = express.Router();
 
 
-router.get("/votes", (req,res)=>{
+router.get("/vote", (req,res)=>{
     const sql = "select * from vote";
     conn.query(sql,(err,result)=>{
         res.json(result);
