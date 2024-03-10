@@ -12,15 +12,20 @@ router.get("/all", (req, res) => {
 
 router.put("/:id", async (req, res) => {
   const id = req.params.id;
-  const newScore = req.body.pictrue_p; 
+  const newScore = req.body.pictrue_p;
 
   const sql = "UPDATE pictrue SET pictrue_p = ? WHERE pictrue_id = ?";
 
   conn.query(sql, [newScore, id], (err, result) => {
-    conn.query(sql, (err, result) => {
-      if (err) throw err;
-      res
-        .status(201)
-        .json({ affected_row: result.affectedRows, last_idx: result.insertId });
-    });  });
+    if (err) {
+      console.error("Error executing SQL:", err);
+      res.status(500).json({ error: "Internal server error" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Successfully updated record",
+      affected_row: result.affectedRows
+    });
+  });
 });
