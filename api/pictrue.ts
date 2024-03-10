@@ -29,3 +29,40 @@ router.put("/:id", async (req, res) => {
     });
   });
 });
+
+
+router.get("/statistics/:pictrue_id", async (req, res) => {
+  try {
+    const pictrueId = req.params.pictrue_id;
+    
+    const endDate = new Date();
+    const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const sql = `
+      SELECT COUNT(*) as count, DATE(vote_timestamp) as date, SUM(vote_point) as total_score
+      FROM vote
+      WHERE pt_id = ? AND vote_timestamp BETWEEN ? AND ?
+      GROUP BY DATE(vote_timestamp)
+    `;
+
+    conn.query(sql, [pictrueId, startDate, endDate], (err, results) => {
+      if (err) {
+        console.error("Error executing SQL:", err);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+
+      const statistics = results.map((row: any) => ({
+        date: row.date,
+        count: row.count,
+        total_score: row.total_score // แก้ชื่อ key เป็น total_score
+      }));
+
+      res.status(200).json(statistics);
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
