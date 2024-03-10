@@ -4,8 +4,12 @@ import { PictruepostResponse } from "../mode/PictruepostResponse";
 import mysql from "mysql";
 export const router = express.Router();
 
-
-
+router.get("/", (req, res) => {
+  const sql = "SELECT * FROM pictrue";
+  conn.query(sql, (err, result) => {
+    res.json(result);
+  });
+});
 
 router.get("/all", (req, res) => {
   const sql = "SELECT * FROM pictrue ORDER BY RAND() LIMIT 2";
@@ -29,16 +33,15 @@ router.put("/:id", async (req, res) => {
 
     res.status(200).json({
       message: "Successfully updated record",
-      affected_row: result.affectedRows
+      affected_row: result.affectedRows,
     });
   });
 });
 
-
 router.get("/statistics/:pictrue_id", async (req, res) => {
   try {
     const pictrueId = req.params.pictrue_id;
-    
+
     const endDate = new Date();
     const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
 
@@ -59,8 +62,8 @@ router.get("/statistics/:pictrue_id", async (req, res) => {
       const statistics = results.map((row: any) => ({
         date: row.date,
         count: row.count,
-        total_score: row.total_score 
-      }));  
+        total_score: row.total_score,
+      }));
 
       res.status(200).json(statistics);
     });
@@ -70,19 +73,15 @@ router.get("/statistics/:pictrue_id", async (req, res) => {
   }
 });
 
-
-
-
-
 router.post("/add", (req, res) => {
   let pictrue: PictruepostResponse = req.body;
   let sql =
-        "INSERT INTO `pictrue`(`pictrue_url`,`pictrue_p`,`u_id`) VALUES (?,?,?)";
+    "INSERT INTO `pictrue`(`pictrue_url`,`pictrue_p`,`u_id`) VALUES (?,?,?)";
   sql = mysql.format(sql, [
     pictrue.pictrue_url,
     pictrue.pictrue_p,
-    pictrue.u_id
-      ]);
+    pictrue.u_id,
+  ]);
   conn.query(sql, (err, result) => {
     if (err) throw err;
     res
@@ -93,10 +92,12 @@ router.post("/add", (req, res) => {
 
 router.delete("/delete/:id", (req, res) => {
   let id = +req.params.id;
-  conn.query("delete from pictrue where pictrue_id = ?", [id], (err, result) => {
-     if (err) throw err;
-     res
-       .status(200)
-       .json({ affected_row: result.affectedRows });
-  });
+  conn.query(
+    "delete from pictrue where pictrue_id = ?",
+    [id],
+    (err, result) => {
+      if (err) throw err;
+      res.status(200).json({ affected_row: result.affectedRows });
+    }
+  );
 });
