@@ -38,7 +38,7 @@ router.put("/:id", async (req, res) => {
   });
 });
 
-router.get("/statistics/:pictrue_id", async (req, res) => {
+router.get("/statistics/:pictrue_id",  (req, res) => {
   try {
     const pictrueId = req.params.pictrue_id;
 

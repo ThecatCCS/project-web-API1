@@ -34,9 +34,6 @@ router.post("/:id", upload.single("filename"), async (req, res) => {
 
         // Upload the file in the bucket storage
         const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
-        //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
-
-        // Grab the public url
         const downloadURL = await getDownloadURL(snapshot.ref);
         const pictrueId = req.params.id;
         let sql = `INSERT INTO pictrue (pictrue_url, pictrue_p, u_id) VALUES (?, ?, ?)`;
