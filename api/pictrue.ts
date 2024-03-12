@@ -4,7 +4,7 @@ import { PictruepostResponse } from "../mode/PictruepostResponse";
 import mysql from "mysql";
 export const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/alls", (req, res) => {
   const sql = "SELECT * FROM pictrue";
   conn.query(sql, (err, result) => {
     res.json(result);
