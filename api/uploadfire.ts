@@ -8,13 +8,10 @@ import { conn } from "../dbconnect";
 
 export const router = express.Router();
 
-//Initialize a firebase application
 initializeApp(firebaseConfig);
 
-// Initialize Cloud Storage and get a reference to the service
 const storage = getStorage();
 
-// Setting up multer as a middleware to grab photo uploads
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/:id", upload.single("filename"), async (req, res) => {
