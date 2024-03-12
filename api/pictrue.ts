@@ -4,9 +4,29 @@ import { PictruepostResponse } from "../mode/PictruepostResponse";
 import mysql from "mysql";
 export const router = express.Router();
 
-router.get("/", (req, res) => {
-  const sql = "SELECT * FROM pictrue";
+router.get("/alls", (req, res) => {
+  const sql = `SELECT 
+    pictrue.*, 
+    pictrue.pictrue_p - COALESCE(SUM(vote.vote_point), 0) AS adjusted_score, 
+    ROW_NUMBER() OVER (ORDER BY pictrue.pictrue_p DESC) AS ranking  
+FROM 
+    pictrue 
+LEFT JOIN 
+    vote ON pictrue.pictrue_id = vote.pt_id 
+WHERE 
+    DATE(vote.vote_timestamp) = CURDATE() - INTERVAL 1 DAY 
+GROUP BY 
+    pictrue.pictrue_id, pictrue.pictrue_p, pictrue.pictrue_url, pictrue.u_id
+ORDER BY 
+    pictrue.pictrue_p DESC;
+`;
+  // const sql = "SELECT *, ROW_NUMBER() OVER (ORDER BY pictrue_p DESC) AS ranking  FROM pictrue ORDER BY pictrue_p DESC";
   conn.query(sql, (err, result) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal Server Error" });
+      return;
+    }
     res.json(result);
   });
 });
@@ -38,7 +58,7 @@ router.put("/:id", async (req, res) => {
   });
 });
 
-router.get("/statistics/:pictrue_id",  (req, res) => {
+router.get("/statistics/:pictrue_id", (req, res) => {
   try {
     const pictrueId = req.params.pictrue_id;
 
