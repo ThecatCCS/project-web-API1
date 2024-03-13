@@ -41,7 +41,6 @@ router.get("/alls", (req, res) => {
         ROW_NUMBER() OVER (ORDER BY pictrue_p DESC) AS ranking
     FROM pictrue
 )
-
 SELECT 
     r1.pictrue_id,
     r1.pictrue_url,
