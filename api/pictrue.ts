@@ -41,7 +41,6 @@ router.get("/alls", (req, res) => {
         ROW_NUMBER() OVER (ORDER BY pictrue_p DESC) AS ranking
     FROM pictrue
 )
-
 SELECT 
     r1.pictrue_id,
     r1.pictrue_url,
@@ -60,7 +59,7 @@ LEFT JOIN (
             p.pictrue_p, 
             CASE 
                 WHEN SUM(v.vote_point) IS NULL THEN p.pictrue_p 
-                ELSE p.pictrue_p - COALESCE(SUM(v.vote_point), 0) 
+                ELSE p.pictrue_p + COALESCE(SUM(v.vote_point), 0) 
             END AS total_point
         FROM pictrue p
         LEFT JOIN vote v ON p.pictrue_id = v.pt_id AND DATE(v.vote_timestamp) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
