@@ -71,7 +71,7 @@ router.get("/all", (req, res) => {
   const sql = "SELECT * FROM pictrue ORDER BY RAND() LIMIT 2";
   conn.query(sql, (err, result) => {
     res.json(result);
-  });
+  }); 
 });
 
 router.put("/:id", async (req, res) => {
