@@ -50,7 +50,6 @@ SELECT
 FROM RankedPictrue r1
 LEFT JOIN (
     SELECT 
-    
         pictrue_id,
         ROW_NUMBER() OVER (ORDER BY total_point DESC) AS ranking
     FROM (
@@ -123,7 +122,7 @@ router.get("/statistics/:pictrue_id", (req, res) => {
       FROM vote
       WHERE pt_id = ? AND vote_timestamp BETWEEN ? AND ?
       GROUP BY DATE(vote_timestamp)
-      ORDER BY vote_timestamp ASC;
+      ORDER BY DATE(vote_timestamp) ASC
       
     `;
 

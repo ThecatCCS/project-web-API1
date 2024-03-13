@@ -7,7 +7,7 @@ import { VotePostResponse } from "../mode/VotepostResponse";
 export const router = express.Router();
 
 
-router.get("/vote", (req,res)=>{
+router.get("/votes", (req,res)=>{
     const sql = "select * from vote";
     conn.query(sql,(err,result)=>{
         res.json(result);
@@ -24,6 +24,8 @@ router.post("/vote", (req, res) => {
         vote.vote_timestamp,
         vote.u_id
         ]);
+    console.log(vote.vote_timestamp);
+    
     conn.query(sql, (err, result) => {
       if (err) throw err;
       res
