@@ -58,7 +58,7 @@ LEFT JOIN (
             p.pictrue_p, 
             CASE 
                 WHEN SUM(v.vote_point) IS NULL THEN p.pictrue_p 
-                ELSE p.pictrue_p - COALESCE(SUM(v.vote_point), 0) 
+                ELSE p.pictrue_p + COALESCE(SUM(v.vote_point), 0) 
             END AS total_point
         FROM pictrue p
         LEFT JOIN vote v ON p.pictrue_id = v.pt_id AND DATE(v.vote_timestamp) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
