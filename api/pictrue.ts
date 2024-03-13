@@ -4,7 +4,6 @@ import { PictruepostResponse } from "../mode/PictruepostResponse";
 import mysql from "mysql";
 export const router = express.Router();
 
-
 router.get("/all/:p_id", (req, res) => {
   const sql = `
     SELECT 
@@ -22,7 +21,7 @@ router.get("/all/:p_id", (req, res) => {
     }
 
     // ตรวจสอบประเภทของข้อมูลที่ได้รับ
-    if (typeof result[0].initial_score === 'string') {
+    if (typeof result[0].initial_score === "string") {
       // แปลงข้อมูลเป็นตัวเลข
       result[0].initial_score = parseFloat(result[0].initial_score);
     }
@@ -31,32 +30,50 @@ router.get("/all/:p_id", (req, res) => {
   });
 });
 
-
-
 router.get("/alls", (req, res) => {
-//   const sql = `
-//   SELECT 
-//     pictrue_id,
-//     pictrue_p,
-//     total_point,
-//     ROW_NUMBER() OVER (ORDER BY total_point DESC) AS ranking
-// FROM (
-//     SELECT 
-//         p.pictrue_id, 
-//         p.pictrue_p, 
-//         CASE 
-//             WHEN SUM(v.vote_point) IS NULL THEN p.pictrue_p 
-//             ELSE p.pictrue_p - COALESCE(SUM(v.vote_point), 0) 
-//         END AS total_point
-//     FROM pictrue p
-//     LEFT JOIN vote v ON p.pictrue_id = v.pt_id AND DATE(v.vote_timestamp) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
-//     GROUP BY p.pictrue_id, p.pictrue_p
-// ) AS subquery
-// ORDER BY total_point DESC;
+  const sql = `
+  WITH RankedPictrue AS (
+    SELECT 
+        pictrue_id,
+        pictrue_url,
+        u_id,
+        pictrue_p,
+        ROW_NUMBER() OVER (ORDER BY pictrue_p DESC) AS ranking
+    FROM pictrue
+)
+
+SELECT 
+    r1.pictrue_id,
+    r1.pictrue_url,
+    r1.u_id,
+    COALESCE(r2.ranking, 0) - r1.ranking  AS rank_difference,
+    r1.pictrue_p
+FROM RankedPictrue r1
+LEFT JOIN (
+    SELECT 
+        pictrue_id,
+        ROW_NUMBER() OVER (ORDER BY total_point DESC) AS ranking
+    FROM (
+        SELECT 
+            p.pictrue_id, 
+            p.pictrue_p, 
+            CASE 
+                WHEN SUM(v.vote_point) IS NULL THEN p.pictrue_p 
+                ELSE p.pictrue_p - COALESCE(SUM(v.vote_point), 0) 
+            END AS total_point
+        FROM pictrue p
+        LEFT JOIN vote v ON p.pictrue_id = v.pt_id AND DATE(v.vote_timestamp) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+        GROUP BY p.pictrue_id, p.pictrue_p
+    ) AS subquery
+) AS r2 ON r1.pictrue_id = r2.pictrue_id
+ORDER BY r1.pictrue_p DESC;
 
 
-// `;
-  const sql = "SELECT *, ROW_NUMBER() OVER (ORDER BY pictrue_p DESC) AS ranking  FROM pictrue ORDER BY pictrue_p DESC";
+
+  
+
+`;
+  // const sql = `SELECT *, ROW_NUMBER() OVER (ORDER BY pictrue_p DESC) AS ranking  FROM pictrue ORDER BY pictrue_p DESC`;
   conn.query(sql, (err, result) => {
     if (err) {
       console.error(err);
