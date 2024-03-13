@@ -50,6 +50,7 @@ SELECT
 FROM RankedPictrue r1
 LEFT JOIN (
     SELECT 
+    
         pictrue_id,
         ROW_NUMBER() OVER (ORDER BY total_point DESC) AS ranking
     FROM (
