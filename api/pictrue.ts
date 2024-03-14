@@ -123,6 +123,7 @@ router.get("/statistics/:pictrue_id", (req, res) => {
       FROM vote
       WHERE pt_id = ? AND vote_timestamp BETWEEN ? AND ?
       GROUP BY DATE(vote_timestamp)
+      ORDER BY vote_timestamp ASC;
     `;
 
     conn.query(sql, [pictrueId, startDate, endDate], (err, results) => {
