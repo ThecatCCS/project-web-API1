@@ -24,12 +24,10 @@ router.post("/:id", upload.single("filename"), async (req, res) => {
 
         const storageRef = ref(storage, `files/${req.file.originalname + "       " + dateTime}`);
 
-        // Create file metadata including the content type
         const metadata = {
             contentType: req.file.mimetype,
         };
 
-        // Upload the file in the bucket storage
         const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
         const downloadURL = await getDownloadURL(snapshot.ref);
         const pictrueId = req.params.id;

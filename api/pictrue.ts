@@ -32,7 +32,7 @@ router.get("/all/:p_id", (req, res) => {
 
 router.get("/alls", (req, res) => {
   const sql = `
-  WITH RankedPictrue AS (
+WITH RankedPictrue AS (
     SELECT 
         pictrue_id,
         pictrue_url,
@@ -41,7 +41,7 @@ router.get("/alls", (req, res) => {
         ROW_NUMBER() OVER (ORDER BY pictrue_p DESC) AS ranking
     FROM pictrue
 )
-SELECT 
+SELECT
     r1.pictrue_id,
     r1.pictrue_url,
     r1.u_id,
@@ -87,7 +87,7 @@ router.get("/all", (req, res) => {
   const sql = "SELECT * FROM pictrue ORDER BY RAND() LIMIT 2";
   conn.query(sql, (err, result) => {
     res.json(result);
-  }); 
+  });
 });
 
 router.put("/:id", async (req, res) => {
