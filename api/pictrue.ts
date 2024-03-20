@@ -20,9 +20,7 @@ router.get("/all/:p_id", (req, res) => {
       return;
     }
 
-    // ตรวจสอบประเภทของข้อมูลที่ได้รับ
     if (typeof result[0].initial_score === "string") {
-      // แปลงข้อมูลเป็นตัวเลข
       result[0].initial_score = parseFloat(result[0].initial_score);
     }
 
@@ -122,12 +120,8 @@ router.get("/statistics/:pictrue_id", (req, res) => {
       FROM vote
       WHERE pt_id = ? AND vote_timestamp BETWEEN ? AND ?
       GROUP BY DATE(vote_timestamp)
-<<<<<<< HEAD
-      ORDER BY vote_timestamp ASC;
-=======
       ORDER BY DATE(vote_timestamp) ASC
       
->>>>>>> f8a8fde32420393fa8af21407df3849c018abf15
     `;
 
     conn.query(sql, [pictrueId, startDate, endDate], (err, results) => {
@@ -170,8 +164,12 @@ router.post("/add", (req, res) => {
 
 router.delete("/delete/:id", (req, res) => {
   let id = +req.params.id;
+  
   conn.query(
-    "delete from pictrue where pictrue_id = ?",
+    `DELETE pictrue, vote
+    FROM pictrue
+    LEFT JOIN vote ON pictrue.pictrue_id = vote.pt_id
+    WHERE pictrue.pictrue_id = ?`,
     [id],
     (err, result) => {
       if (err) throw err;
@@ -179,3 +177,5 @@ router.delete("/delete/:id", (req, res) => {
     }
   );
 });
+
+

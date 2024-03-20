@@ -31,8 +31,7 @@ router.get("/:id", (req, res) => {
 
 router.post("/user", (req, res) => {
   let user: UserPostResponse = req.body;
-  let sql =
-    "INSERT INTO `users`(`user_email`, `user_pass`, `user_gender`, `user_name`, `user_age`) VALUES (?,?,?,?,?)";
+  let sql ="INSERT INTO `users`(`user_email`, `user_pass`, `user_gender`, `user_name`, `user_age`) VALUES (?,?,?,?,?)";
   sql = mysql.format(sql, [
     user.user_email,
     user.user_pass,
@@ -47,3 +46,25 @@ router.post("/user", (req, res) => {
       .json({ affected_row: result.affectedRows, last_idx: result.insertId });
   });
 });
+router.put("/user/:id",  (req,res)=>{
+  
+
+  let id = req.params.id;
+  let user: UserPostResponse = req.body;
+  let sql = `UPDATE users SET user_pass = ? ,user_pictrue = ?, user_name = ?,user_age = ?,user_gender = ?,user_preference = ? WHERE user_id = ?`;
+  sql = mysql.format(sql,[
+    user.user_pass,
+    user.user_pictrue,
+    user.user_name,
+    user.user_age,
+    user.user_gender,
+    user.user_preference,
+    id
+  ]);
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
+    res
+      .status(201)
+      .json({ affected_row: result.affectedRows, last_idx: result.insertId });
+  });
+})

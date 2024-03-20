@@ -46,6 +46,39 @@ router.post("/:id", upload.single("filename"), async (req, res) => {
     }
 });
 
+
+router.put("/update/:id", upload.single("filename"), async (req, res) => {
+    
+    try {
+        if (!req.file) {
+            return res.status(400).send('No file uploaded!');
+          }
+        const dateTime = giveCurrentDateTime();
+
+        const storageRef = ref(storage, `files/${req.file.originalname + "       " + dateTime}`);
+
+        const metadata = {
+            contentType: req.file.mimetype,
+        };
+
+        const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        const pictrueId = req.params.id;
+        let sql = `UPDATE pictrue SET pictrue_url = ?, pictrue_p = ? WHERE pictrue_id = ?`;
+        sql = mysql.format(sql, [downloadURL, 1000, pictrueId]);
+        conn.query(sql, (err, result) => {
+            if (err) throw err;
+            res
+              .status(201)
+              .json({ affected_row: result.affectedRows, last_idx: result.insertId });
+          });
+        
+        console.log('File successfully uploaded.');
+    } catch (error) {
+        return res.status(400).send(error)
+    }
+});
+
 const giveCurrentDateTime = () => {
     const today = new Date();
     const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
@@ -53,5 +86,10 @@ const giveCurrentDateTime = () => {
     const dateTime = date + ' ' + time;
     return dateTime;
 }
+
+
+
+
+
 
 export default router;
