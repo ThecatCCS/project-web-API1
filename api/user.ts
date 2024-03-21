@@ -30,10 +30,12 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/user", (req, res) => {
+  let url = "https://i.pinimg.com/564x/b6/e6/87/b6e687094f11e465e7d710a6b5754a4e.jpg";
   let user: UserPostResponse = req.body;
   let sql =
-    "INSERT INTO `users`(`user_email`, `user_pass`, `user_gender`, `user_name`, `user_age`) VALUES (?,?,?,?,?)";
+    "INSERT INTO `users`(`user_pictrue`,`user_email`, `user_pass`, `user_gender`, `user_name`, `user_age`) VALUES (?,?,?,?,?,?)";
   sql = mysql.format(sql, [
+    url,
     user.user_email,
     user.user_pass,
     user.user_gender,
