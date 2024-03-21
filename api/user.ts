@@ -13,25 +13,26 @@ router.get("/users", (req, res) => {
 });
 
 router.get("/:id", (req, res) => {
-    let id = req.params.id;
-    let sql = 'SELECT * FROM users where user_id = ?';
-    sql = mysql.format(sql, [id]);
-    
-    conn.query(sql, (err, result) => {
-      if (err) throw err;
-  
-      if (result.length > 0) {
-        let userObject = result[0];
-        res.status(201).json(userObject);
-      } else {
-        res.status(404).json({ message: "User not found" });
-      }
-    });
+  let id = req.params.id;
+  let sql = "SELECT * FROM users where user_id = ?";
+  sql = mysql.format(sql, [id]);
+
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
+
+    if (result.length > 0) {
+      let userObject = result[0];
+      res.status(201).json(userObject);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
   });
+});
 
 router.post("/user", (req, res) => {
   let user: UserPostResponse = req.body;
-  let sql ="INSERT INTO `users`(`user_email`, `user_pass`, `user_gender`, `user_name`, `user_age`) VALUES (?,?,?,?,?)";
+  let sql =
+    "INSERT INTO `users`(`user_email`, `user_pass`, `user_gender`, `user_name`, `user_age`) VALUES (?,?,?,?,?)";
   sql = mysql.format(sql, [
     user.user_email,
     user.user_pass,
@@ -46,20 +47,18 @@ router.post("/user", (req, res) => {
       .json({ affected_row: result.affectedRows, last_idx: result.insertId });
   });
 });
-router.put("/user/:id",  (req,res)=>{
-  
-
+router.put("/user/:id", (req, res) => {
   let id = req.params.id;
   let user: UserPostResponse = req.body;
   let sql = `UPDATE users SET user_pass = ? ,user_pictrue = ?, user_name = ?,user_age = ?,user_gender = ?,user_preference = ? WHERE user_id = ?`;
-  sql = mysql.format(sql,[
+  sql = mysql.format(sql, [
     user.user_pass,
     user.user_pictrue,
     user.user_name,
     user.user_age,
     user.user_gender,
     user.user_preference,
-    id
+    id,
   ]);
   conn.query(sql, (err, result) => {
     if (err) throw err;
@@ -67,4 +66,4 @@ router.put("/user/:id",  (req,res)=>{
       .status(201)
       .json({ affected_row: result.affectedRows, last_idx: result.insertId });
   });
-})
+});
