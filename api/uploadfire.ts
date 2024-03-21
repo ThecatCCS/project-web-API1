@@ -114,9 +114,8 @@ router.put("/userpictrue/:id", upload.single("filename"), async (req, res) => {
 router.put("/userprofile/:id", (req, res) => {
     let id = req.params.id;
     let user: UserPostResponse = req.body;
-    let sql = `UPDATE users SET user_pass = ?, user_name = ?,user_age = ?,user_gender = ?,user_preference = ? WHERE user_id = ?`;
+    let sql = `UPDATE users SET user_name = ?,user_age = ?,user_gender = ?,user_preference = ? WHERE user_id = ?`;
     sql = mysql.format(sql, [
-      user.user_pass,
       user.user_name,
       user.user_age,
       user.user_gender,
