@@ -67,3 +67,18 @@ router.put("/user/:id", (req, res) => {
       .json({ affected_row: result.affectedRows, last_idx: result.insertId });
   });
 });
+router.put("/userpass/:id", (req, res) => {
+  let id = req.params.id;
+  let user: UserPostResponse = req.body;
+  let sql = `UPDATE users SET user_pass = ? WHERE user_id = ?`;
+  sql = mysql.format(sql, [
+    user.user_pass,
+    id,
+  ]);
+  conn.query(sql, (err, result) => {
+    if (err) throw err;
+    res
+      .status(201)
+      .json({ affected_row: result.affectedRows, last_idx: result.insertId });
+  });
+});
