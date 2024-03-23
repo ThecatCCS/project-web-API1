@@ -6,6 +6,24 @@ import { VotePostResponse } from "../mode/VotepostResponse";
 
 export const router = express.Router();
 
+router.put("/:time", async (req, res) => {
+    const time = req.params.time;
+    const id = 1;
+    const sql = "UPDATE systemtime SET time = ? where t_id= ?";
+  
+    conn.query(sql, [time,id], (err, result) => {
+      if (err) {
+        console.error("Error executing SQL:", err);
+        res.status(500).json({ error: "Internal server error" });
+        return;
+      }
+  
+      res.status(200).json({
+        message: "Successfully updated all records",
+        affected_rows: result.affectedRows,
+      });
+    });
+});
 
 router.get("/votes", (req,res)=>{
     const sql = "select * from vote";
