@@ -60,8 +60,6 @@ LEFT JOIN (
             END AS total_point
         FROM pictrue p
         LEFT JOIN vote v ON p.pictrue_id = v.pt_id AND DATE(v.vote_timestamp) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
-        WHERE DATE(p.pictrue_timestamp) != CURDATE() -- ปรับเงื่อนไขเพื่อไม่นับรูปที่ถูกสร้างใหม่ในวันปัจจุบัน
-
         GROUP BY p.pictrue_id, p.pictrue_p
     ) AS subquery
 ) AS r2 ON r1.pictrue_id = r2.pictrue_id
