@@ -11,7 +11,12 @@ router.get("/users", (req, res) => {
     res.json(result);
   });
 });
-
+router.get("/userPro", (req, res) => {
+  const sql = "select * from users where user_type = 2";
+  conn.query(sql, (err, result) => {
+    res.json(result);
+  });
+});
 router.get("/:id", (req, res) => {
   let id = req.params.id;
   let sql = "SELECT * FROM users where user_id = ?";
