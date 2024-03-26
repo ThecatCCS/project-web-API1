@@ -30,12 +30,13 @@ router.get("/all/:p_id", (req, res) => {
 
 router.get("/alls", (req, res) => {
   const sql = `
-WITH RankedPictrue AS (
+  WITH RankedPictrue AS (
     SELECT 
         pictrue_id,
         pictrue_url,
         u_id,
         pictrue_p,
+        pictrue_time,
         ROW_NUMBER() OVER (ORDER BY pictrue_p DESC) AS ranking
     FROM pictrue
 )
@@ -43,7 +44,10 @@ SELECT
     r1.pictrue_id,
     r1.pictrue_url,
     r1.u_id,
-    COALESCE(r2.ranking, 0) - r1.ranking  AS rank_difference,
+    CASE
+        WHEN DATE(r1.pictrue_time) = CURDATE() THEN 0
+        ELSE COALESCE(r2.ranking, 0) - r1.ranking
+    END AS rank_difference,
     r1.pictrue_p
 FROM RankedPictrue r1
 LEFT JOIN (
@@ -64,6 +68,7 @@ LEFT JOIN (
     ) AS subquery
 ) AS r2 ON r1.pictrue_id = r2.pictrue_id
 ORDER BY r1.pictrue_p DESC;
+
 
 
 
@@ -237,12 +242,15 @@ router.get("/statistics/:pictrue_id", (req, res) => {
 
 router.post("/add", (req, res) => {
   let pictrue: PictruepostResponse = req.body;
+  const currentTime: Date = new Date();
+  const voteTimestamp: string = currentTime.toISOString().slice(0, 19);
   let sql =
-    "INSERT INTO `pictrue`(`pictrue_url`,`pictrue_p`,`u_id`) VALUES (?,?,?)";
+    "INSERT INTO `pictrue`(`pictrue_url`,`pictrue_p`,`u_id`,`pictrue_time`) VALUES (?,?,?,?)"; 
   sql = mysql.format(sql, [
     pictrue.pictrue_url,
     pictrue.pictrue_p,
     pictrue.u_id,
+    voteTimestamp
   ]);
   conn.query(sql, (err, result) => {
     if (err) throw err;
@@ -251,6 +259,7 @@ router.post("/add", (req, res) => {
       .json({ affected_row: result.affectedRows, last_idx: result.insertId });
   });
 });
+
 
 router.delete("/delete/:id", (req, res) => {
   let id = +req.params.id;
