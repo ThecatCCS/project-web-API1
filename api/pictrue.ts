@@ -87,101 +87,106 @@ ORDER BY r1.pictrue_p DESC;
 });
 
 // สร้างตัวแปรเพื่อเก็บรูปที่ถูกสุ่มไว้
-let selectedPictures: any[] = [];
-let time: number ;
+let selectedPictures: { [userId: string]: any[] } = {};
+let time: number;
+
 router.get("/duo/:id", (req, res) => {
-  // ตรวจสอบว่ามี user_id ที่ส่งมาหรือไม่
-  const userId = req.params.id;
-  if (!userId) {
-    res.status(400).json({ error: "Missing user_id parameter" });
-    return;
-  }
-
-  // ตรวจสอบว่า selectedPictures ยังไม่มีข้อมูลหรือเปล่า
-  if (selectedPictures.length === 0) {
-    // ถ้ายังไม่มีให้ทำการสุ่มรูปภาพ
-    const sql = "SELECT * FROM pictrue ORDER BY RAND() LIMIT 2";
-    const sql1 = "SELECT time FROM systemtime";
-    conn.query(sql1, (err, timeResult) => {
-      if (err) {
-        console.error("Error executing time query:", err);
-        res.status(500).json({ error: "Internal server error" });
+    // ตรวจสอบว่ามี user_id ที่ส่งมาหรือไม่
+    const userId = req.params.id;
+    if (!userId) {
+        res.status(400).json({ error: "Missing user_id parameter" });
         return;
-      }
+    }
 
-      // เมื่อได้ค่า time จากการ query ให้นำไปใช้ได้ตามต้องการที่นี่
-     time = timeResult[0].time;
-
-      // ต่อไปคุณสามารถใช้ค่า time ในการตอบกลับหรือนำไปใช้ในการ query อื่น ๆ ได้
-    });
-    conn.query(sql, (err, result) => {
-      if (err) {
-        console.error("Error executing query:", err);
-        res.status(500).json({ error: "Internal server error" });
-        return;
-      }
-      // วนลูปผลลัพธ์ที่ได้จากการ query
-      result.forEach((pic: { pictrue_id: any }) => {
-        // เพิ่ม pictrue_id ลงใน selectedPictures array
-        selectedPictures.push({ pictrue_id: pic.pictrue_id, user_id: userId });
-        // เริ่มต้นการนับเวลา 10 วินาทีและลบ pictrue_id ออกจาก selectedPictures
-        setTimeout(() => {
-          const index = selectedPictures.findIndex(
-            (item) =>
-              item.pictrue_id === pic.pictrue_id && item.user_id === userId
-          );
-          if (index !== -1) {
-            selectedPictures.splice(index, 1);
-            console.log(
-              `Removed pictrue_id ${pic.pictrue_id} from selectedPictures for user ${userId}`
-            );
-          }
-        }, time*1000); // 10 วินาที
-      });
-      // ส่งผลลัพธ์กลับไป
-      res.json(result);
-    });
-  } else {
-    // ถ้ามีรูปที่ถูกสุ่มแล้วอยู่ใน selectedPictures
-    // ให้ทำการสุ่มใหม่ และตรวจสอบว่า pictrue_id นั้นอยู่ใน selectedPictures หรือไม่
-    let sql =
-      "SELECT * FROM pictrue WHERE pictrue_id NOT IN (?) ORDER BY RAND() LIMIT 2";
-    conn.query(
-      sql,
-      [selectedPictures.map((item) => item.pictrue_id)],
-      (err, result) => {
-        if (err) {
-          console.error("Error executing query:", err);
-          res.status(500).json({ error: "Internal server error" });
-          return;
-        }
-        // วนลูปผลลัพธ์ที่ได้จากการ query
-        result.forEach((pic: { pictrue_id: any }) => {
-          // เพิ่ม pictrue_id ลงใน selectedPictures array
-          selectedPictures.push({
-            pictrue_id: pic.pictrue_id,
-            user_id: userId,
-          });
-          // เริ่มต้นการนับเวลา 10 วินาทีและลบ pictrue_id ออกจาก selectedPictures
-          setTimeout(() => {
-            const index = selectedPictures.findIndex(
-              (item) =>
-                item.pictrue_id === pic.pictrue_id && item.user_id === userId
-            );
-            if (index !== -1) {
-              selectedPictures.splice(index, 1);
-              console.log(
-                `Removed pictrue_id ${pic.pictrue_id} from selectedPictures for user ${userId}`
-              );
+    // ตรวจสอบว่า selectedPictures ของ user_id นี้ยังไม่มีข้อมูลหรือเปล่า
+    if (!selectedPictures[userId] || selectedPictures[userId].length === 0) {
+        // ถ้ายังไม่มีให้ทำการสุ่มรูปภาพ
+        const sql = "SELECT * FROM pictrue ORDER BY RAND() LIMIT 2";
+        const sql1 = "SELECT time FROM systemtime";
+        conn.query(sql1, (err, timeResult) => {
+            if (err) {
+                console.error("Error executing time query:", err);
+                res.status(500).json({ error: "Internal server error" });
+                return;
             }
-          }, time*1000); // 30 วินาที
+
+            // เมื่อได้ค่า time จากการ query ให้นำไปใช้ได้ตามต้องการที่นี่
+            time = timeResult[0].time;
+
+            // ต่อไปคุณสามารถใช้ค่า time ในการตอบกลับหรือนำไปใช้ในการ query อื่น ๆ ได้
         });
-        // ส่งผลลัพธ์กลับไป
-        res.json(result);
-      }
-    );
-  }
+        conn.query(sql, (err, result) => {
+            if (err) {
+                console.error("Error executing query:", err);
+                res.status(500).json({ error: "Internal server error" });
+                return;
+            }
+            // วนลูปผลลัพธ์ที่ได้จากการ query
+            result.forEach((pic: { pictrue_id: any }) => {
+                // เพิ่ม pictrue_id ลงใน selectedPictures array ของ user_id นี้
+                if (!selectedPictures[userId]) {
+                    selectedPictures[userId] = [];
+                }
+                selectedPictures[userId].push({ pictrue_id: pic.pictrue_id });
+                // เริ่มต้นการนับเวลา 10 วินาทีและลบ pictrue_id ออกจาก selectedPictures
+                setTimeout(() => {
+                    const index = selectedPictures[userId].findIndex(
+                        (item) => item.pictrue_id === pic.pictrue_id
+                    );
+                    if (index !== -1) {
+                        selectedPictures[userId].splice(index, 1);
+                        console.log(
+                            `Removed pictrue_id ${pic.pictrue_id} from selectedPictures for user ${userId}`
+                        );
+                    }
+                }, time * 1000); // 10 วินาที
+            });
+            // ส่งผลลัพธ์กลับไป
+            res.json(result);
+        });
+    } else {
+        // ถ้ามีรูปที่ถูกสุ่มแล้วอยู่ใน selectedPictures ของ user_id นี้
+        // ให้ทำการสุ่มใหม่ และตรวจสอบว่า pictrue_id นั้นอยู่ใน selectedPictures ของ user_id นี้หรือไม่
+        let sql =
+            "SELECT * FROM pictrue WHERE pictrue_id NOT IN (?) ORDER BY RAND() LIMIT 2";
+        conn.query(
+            sql,
+            [selectedPictures[userId].map((item) => item.pictrue_id)],
+            (err, result) => {
+                if (err) {
+                    console.error("Error executing query:", err);
+                    res.status(500).json({ error: "Internal server error" });
+                    return;
+                }
+                // วนลูปผลลัพธ์ที่ได้จากการ query
+                result.forEach((pic: { pictrue_id: any }) => {
+                    // เพิ่ม pictrue_id ลงใน selectedPictures array ของ user_id นี้
+                    if (!selectedPictures[userId]) {
+                        selectedPictures[userId] = [];
+                    }
+                    selectedPictures[userId].push({
+                        pictrue_id: pic.pictrue_id,
+                    });
+                    // เริ่มต้นการนับเวลา 10 วินาทีและลบ pictrue_id ออกจาก selectedPictures
+                    setTimeout(() => {
+                        const index = selectedPictures[userId].findIndex(
+                            (item) => item.pictrue_id === pic.pictrue_id
+                        );
+                        if (index !== -1) {
+                            selectedPictures[userId].splice(index, 1);
+                            console.log(
+                                `Removed pictrue_id ${pic.pictrue_id} from selectedPictures for user ${userId}`
+                            );
+                        }
+                    }, time * 1000); // 10 วินาที
+                });
+                // ส่งผลลัพธ์กลับไป
+                res.json(result);
+            }
+        );
+    }
 });
+
 
 router.put("/:id", async (req, res) => {
   const id = req.params.id;
